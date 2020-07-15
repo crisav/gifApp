@@ -1,0 +1,60 @@
+import React from 'react';
+import '@testing-library/jest-dom';
+
+import AddCategory from '../../components/AddCategory';
+import { shallow } from 'enzyme';
+
+
+
+describe('Pruebas en <AddCategory />', () => {
+  
+  const setCategories = jest.fn();
+  let wrapper;
+  
+  beforeEach( () => {
+    jest.clearAllMocks();
+    wrapper = shallow(  <AddCategory  setCategories={setCategories} /> );
+  });
+
+  test('debe de mostrarse correctamente ', () => {
+    expect( wrapper ).toMatchSnapshot();
+  });
+
+  test('debe de cambiar la caja de texto', () => {
+    
+    const input = wrapper.find('input');
+    // sin este valor me salia un error de no se puede sacar un target de undefined
+    const value = 'Hola Mundo';
+    input.simulate('change', { target: { value } });
+
+    expect( wrapper.find('p').text().trim() ).toBe( value ); 
+
+  });
+
+  test('No debe de postear la información con submit ', () => {
+    
+    wrapper.find('form').simulate('submit', { preventDefault(){} });
+
+    expect( setCategories ).not.toHaveBeenCalled();
+
+  });
+
+  test('debe de llamar el setCategories y limpiar la caja de texto', () => {
+    
+    const value = 'Hola Mundo';
+
+    wrapper.find('input').simulate('change', { target: { value } })
+    
+    wrapper.find('form').simulate('submit', { preventDefault(){} });
+
+    expect( setCategories ).toHaveBeenCalled();
+    // SIRVE PARA VER CUANTAS VECES SE EJECUTA UNA FUNCION
+    expect( setCategories ).toHaveBeenCalledTimes(1);
+    // SIRVE PARA VER QUE ARGUMENTOS LE ENVIAMOS A LA FUNCION
+    expect( setCategories ).toHaveBeenCalledWith( expect.any(Function) );
+
+    expect( wrapper.find('input').prop('value') ).toBe(''); 
+
+  });
+  
+})
